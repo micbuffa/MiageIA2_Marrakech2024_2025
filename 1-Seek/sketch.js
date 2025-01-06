@@ -4,8 +4,8 @@ let vehicles = [];
 // la fonction setup est appelée une fois au démarrage du programme par p5.js
 function setup() {
   console.log("setup");
-  // on crée un canvas de 800px par 800px
-  createCanvas(800, 800);
+  // on crée un canvas de la taille de la fenêtre
+  createCanvas(windowWidth, windowHeight);
 
   // on crée un vecteur pour stocker la position de la souris
   target = createVector(0, 0);
@@ -14,6 +14,71 @@ function setup() {
   //vehicle = new Vehicle(400, 400);
 
   creerVehicles(10);
+
+  // x, y, label, min, max, value, step, propriete à changer
+  creerSlider(10, 10, "Vitesse Max", 0, 10, 6, 0.1, "maxSpeed");
+  creerSlider(10, 40, "Force Max", 0, 1, 0.25, 0.01, "maxForce");
+
+  // Un curseur pour changer le nombre de véhicules
+  creerSliderNbVehicules(10, 70, "Nombre de véhicules", 1, 200, 10, 1);
+  
+}
+
+function creerSlider(x, y, textLabel, min, max, value, step, propriete) {
+  // On cree un slider pour changer la vitesse max des vehicules
+  // on ajoute un label pour le slider
+  let label = createP(textLabel + " : ");
+  // couleur blanche
+  label.style('color', 'white');
+  // on le positionne avant le slider
+  let labelX = x;
+  let labelY = y;
+  label.position(labelX, labelY);
+  let slider = createSlider(min, max, value, step);
+  slider.position(labelX + 150, labelY + 18);
+  // On affiche la valeur du slider à droite du slider
+  let sliderValue = createP(slider.value());
+  // couleur blanche
+  sliderValue.style('color', 'white');
+  sliderValue.position(labelX + 300, labelY+2);
+  // on ajoute un écouteur sur le slider
+  slider.input(() => {
+    // on met à jour la valeur du label
+    sliderValue.html(slider.value());
+    // on met à jour la vitesse max des véhicules
+    vehicles.forEach(vehicle => {
+      vehicle[propriete] = slider.value();
+    });
+  });
+}
+
+function creerSliderNbVehicules(x, y, textLabel, min, max, value, step) {
+  // On cree un slider pour changer la vitesse max des vehicules
+  // on ajoute un label pour le slider
+  let label = createP(textLabel + " : ");
+  // couleur blanche
+  label.style('color', 'white');
+  // on le positionne avant le slider
+  let labelX = x;
+  let labelY = y;
+  label.position(labelX, labelY);
+  let slider = createSlider(min, max, value, step);
+  slider.position(labelX + 150, labelY + 18);
+  // On affiche la valeur du slider à droite du slider
+  let sliderValue = createP(slider.value());
+  // couleur blanche
+  sliderValue.style('color', 'white');
+  sliderValue.position(labelX + 300, labelY+2);
+
+  slider.input(() => {
+    // on met à jour la valeur du label
+    sliderValue.html(slider.value());
+    
+    // On remet à 0 le tableau des vehicules
+    vehicles = [];
+    //... et on en recrée
+    creerVehicles(slider.value());
+  });
 }
 
 function creerVehicles(nbVehicules) {
@@ -56,6 +121,15 @@ function draw() {
     // je déplace et dessine le véhicule courant
     vehicle.applyBehaviors(target);
     vehicle.update();
+    vehicle.edges();
     vehicle.show();
+
+    // si le véhicule est arrivé près de la cible, on le fait 
+    // reaparaitre à un endroit aléatoire
+    let distance = p5.Vector.dist(vehicle.pos, target);
+    if(distance < 32) {
+      vehicle.pos.x = random(width);
+      vehicle.pos.y = random(height);
+    }
   });
 }

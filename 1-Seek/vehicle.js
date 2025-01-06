@@ -40,6 +40,7 @@ class Vehicle {
   flee(target) {
     // inverse de seek !  RENVOYER UNE FORCE INVERSE A CELLE RENVOYEE
     // PAR LE COMPORTEMENT SEEK
+    return this.seek(target).mult(-1);
   }
 
   // applyForce est une méthode qui permet d'appliquer une force au véhicule
