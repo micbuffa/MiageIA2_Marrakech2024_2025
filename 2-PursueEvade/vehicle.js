@@ -55,14 +55,13 @@ class Vehicle {
   */
   pursue(target) {
     let force;
-
  
     // 1 - calcul de la position future de la cible
-    // on fait une copie de la vitesse de la target
+    // on fait une copie du vecteur vitesse de la cible
     let prediction = target.vel.copy();
-
-       // TOD    // on multiplie cette vitesse par 10
-       //  - prediction dans 10 frames = 10 fois la longueur du vecteur
+    // on multiplie cette vitesse par 10
+    //  - prediction dans 10 frames = 10 fois la longueur du vecteur
+    prediction.mult(10);
 
     if (Vehicle.debug) {
       // 3 - dessin du vecteur prediction
@@ -72,6 +71,7 @@ class Vehicle {
     // TODO
     // 2 - On veut dessiner un rond vert devant la cible, dans la direction de déplacement
     // On ajoute la position actuelle de la cible à la prédiction
+    prediction.add(target.pos);
 
     // Maintenant les valeurs x et y de prediction sont
     // des  valeurs absolues dans l'écran, pas des valeurs relatives

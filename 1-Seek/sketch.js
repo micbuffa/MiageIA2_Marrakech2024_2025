@@ -1,6 +1,8 @@
 let target, vehicle;
 let vehicles = [];
 
+let target2;
+
 // la fonction setup est appelée une fois au démarrage du programme par p5.js
 function setup() {
   console.log("setup");
@@ -9,6 +11,9 @@ function setup() {
 
   // on crée un vecteur pour stocker la position de la souris
   target = createVector(0, 0);
+
+  // target2 est un vehicule
+  target2 = new Target(400, 400, 60);
 
   // on crée un véhicule
   //vehicle = new Vehicle(400, 400);
@@ -119,17 +124,22 @@ function draw() {
 
   vehicles.forEach(vehicle => {
     // je déplace et dessine le véhicule courant
-    vehicle.applyBehaviors(target);
+    vehicle.applyBehaviors(target2.pos);
     vehicle.update();
     vehicle.edges();
     vehicle.show();
 
     // si le véhicule est arrivé près de la cible, on le fait 
     // reaparaitre à un endroit aléatoire
-    let distance = p5.Vector.dist(vehicle.pos, target);
-    if(distance < 32) {
+    let distance = p5.Vector.dist(vehicle.pos, target2.pos);
+    if(distance < 60) {
       vehicle.pos.x = random(width);
       vehicle.pos.y = random(height);
     }
   });
+
+  // On dessine target2 qui est un vehicule
+  target2.update();
+  target2.edges();
+  target2.show();
 }
