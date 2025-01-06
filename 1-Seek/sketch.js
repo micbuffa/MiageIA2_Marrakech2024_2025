@@ -1,4 +1,5 @@
 let target, vehicle;
+let vehicles = [];
 
 // la fonction setup est appelée une fois au démarrage du programme par p5.js
 function setup() {
@@ -10,13 +11,19 @@ function setup() {
   target = createVector(0, 0);
 
   // on crée un véhicule
-  vehicle = new Vehicle(400, 400);
+  //vehicle = new Vehicle(400, 400);
 
+  creerVehicles(10);
+}
 
-  // Je crée une instance de la classe Target
-  // vitesseX, vitesseY, couleur, rayon
-  target = createVector(0, 0);
-
+function creerVehicles(nbVehicules) {
+  for (let i = 0; i < nbVehicules; i++) {
+    vehicles.push(new Vehicle(random(width), random(height)));
+    // on met une valeur randoml pour la vitesse max
+    vehicles[i].maxSpeed = random(0.5, 6);
+    // idem pour la force max
+    vehicles[i].maxForce = random(0.1, 2);
+  }
 }
 
 // la fonction draw est appelée en boucle par p5.js, 60 fois par seconde par défaut
@@ -45,11 +52,10 @@ function draw() {
   circle(target.x, target.y, 32);
 
 
-  // je déplace et dessine le véhicule
-  vehicle.applyBehaviors(target);
-  vehicle.update();
-  vehicle.show();
-
-  // TODO: boucle sur le tableau de véhicules
-  // pour chaque véhicule : seek, update, show
+  vehicles.forEach(vehicle => {
+    // je déplace et dessine le véhicule courant
+    vehicle.applyBehaviors(target);
+    vehicle.update();
+    vehicle.show();
+  });
 }
