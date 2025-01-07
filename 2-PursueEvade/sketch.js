@@ -22,6 +22,7 @@ function draw() {
     pursuer.show();
 
   // lorsque la target atteint un bord du canvas elle ré-apparait de l'autre côté
+  target.applyBehaviors(pursuer);
   target.update();
   target.edges();
   target.show();
