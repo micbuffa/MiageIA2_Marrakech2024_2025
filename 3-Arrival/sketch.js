@@ -8,7 +8,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(windowWidth, windowHeight);
 
   target = createVector(0, 0);
   vehicle = new Vehicle(400, 400);

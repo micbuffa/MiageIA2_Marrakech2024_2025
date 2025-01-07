@@ -71,7 +71,7 @@ class Vehicle {
         // newVal = map(value, start1, stop1, start2, stop2,)
         // en français : on prend une valeur entre start1 et stop1, et on la transforme pour qu'elle soit
         // entre start2 et stop2
-        // ici dist est entre 0 et le razyon du cercle de freinage, et on transforme cette valeur
+        // ici dist est entre 0 et le rayon du cercle de freinage, et on transforme cette valeur
         // pour qu'elle soit entre 0 et maxSpeed
         desiredSpeedMagnitude = map(dist, 0, this.rayonZoneDeFreinage, 0, this.maxSpeed)
       }
