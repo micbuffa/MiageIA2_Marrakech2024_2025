@@ -10,13 +10,12 @@ class Vehicle {
     // sprite image du véhicule
     this.image = image;
 
-
     // pour comportement wander
     this.distanceCercle = 150;
     this.wanderRadius = 50;
-    this.wanderTheta = 0;
-    this.displaceRange = 0.1;
-  }
+    this.wanderTheta = 0.1;
+    this.displaceRange = 0.3;
+  } 
 
   applyBehaviors() {
     let force = this.wander();
@@ -25,20 +24,23 @@ class Vehicle {
 
   wander() {
     // point devant le véhicule, centre du cercle
+    let centreCercleDevant = this.vel.copy();
+    centreCercleDevant.setMag(this.distanceCercle);
+    centreCercleDevant.add(this.pos);
 
     if (Vehicle.debug) {
       // on le dessine sous la forme d'une petit cercle rouge
-      //fill("red");
-      //circle(centreCercleDevant.x, centreCercleDevant.y, 8);
+      fill("red");
+      circle(centreCercleDevant.x, centreCercleDevant.y, 8);
 
       // Cercle autour du point
-      //noFill();
-      //stroke("white");
-      //circle(centreCercleDevant.x, centreCercleDevant.y, this.wanderRadius * 2);
+      noFill();
+      stroke("white");
+      circle(centreCercleDevant.x, centreCercleDevant.y, this.wanderRadius * 2);
 
       // on dessine une ligne qui relie le vaisseau à ce point
       // c'est la ligne blanche en face du vaisseau
-      //line(this.pos.x, this.pos.y, centreCercleDevant.x, centreCercleDevant.y);
+      line(this.pos.x, this.pos.y, centreCercleDevant.x, centreCercleDevant.y);
     }
 
     // On va s'occuper de calculer le point vert SUR LE CERCLE
@@ -47,29 +49,33 @@ class Vehicle {
     // + cet angle
 
     // on calcule les coordonnées du point vert
+    let angleVaisseau = this.vel.heading();
+    let angle = this.wanderTheta + angleVaisseau;
+    let pointSurCercle = createVector(this.wanderRadius * cos(angle), this.wanderRadius * sin(angle));
 
     // on ajoute la position du vaisseau
+    pointSurCercle.add(centreCercleDevant);
 
     // maintenant pointSurCercle c'est un point sur le cercle
     // on le dessine sous la forme d'un cercle vert
     if (Vehicle.debug) {
-      //fill("lightGreen");
-      //circle(pointSurCercle.x, pointSurCercle.y, 8);
+      fill("lightGreen");
+      circle(pointSurCercle.x, pointSurCercle.y, 8);
 
       // on dessine une ligne qui va du vaisseau vers le point sur le 
       // cercle
-      //line(this.pos.x, this.pos.y, pointSurCercle.x, pointSurCercle.y);
-
+      line(this.pos.x, this.pos.y, pointSurCercle.x, pointSurCercle.y)
     }
     // on calcule le vecteur desiredSpeed qui va du vaisseau au point vert
-
-    // On calcule la force = desiredSpeed - vitesseCourante
-    //let force = p5.Vector.sub(desiredSpeed, this.vel);
-    //force.setMag(this.maxForce);
+    let desiredSpeed = p5.Vector.sub(pointSurCercle, this.pos);
+    // Craig reynolds dit que ce vecteur, c'est DIRECTEMENT LA FORCE
+    // C'est un cas particulier.
+    let force = desiredSpeed;
+    force.limit(this.maxForce);
 
     // On déplace le point vert sur le cercle (en radians)
+    this.wanderTheta += random(-this.displaceRange, this.displaceRange);
 
-    let force = createVector(0, 0);
     return force;
   }
 
