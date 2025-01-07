@@ -8,14 +8,26 @@ class Vehicle {
     this.maxForce = 0.2;
     this.r = 46;
     // sprite image du véhicule
+    // on va la teinter avec une couleur aléatoire
     this.image = image;
+    this.color = color(random(255), random(255), random(255));
+    let coloredImage = createGraphics(this.image.width, this.image.height);
+    coloredImage.tint(this.color);
+    coloredImage.image(this.image, 0, 0);
+    this.image = coloredImage;
+    // Si pas de couleur this.image = image aurait suffit
 
     // pour comportement wander
     this.distanceCercle = 150;
     this.wanderRadius = 50;
     this.wanderTheta = 0.1;
     this.displaceRange = 0.3;
-  } 
+
+    // path following vehicle
+    this.path = [];
+    this.longueurChemin = 70;
+    this.nbPointsIgnores = 3;
+  }
 
   applyBehaviors() {
     let force = this.wander();
@@ -129,6 +141,15 @@ class Vehicle {
     this.vel.limit(this.maxSpeed);
     this.pos.add(this.vel);
     this.acc.set(0, 0);
+
+    // path following
+    this.path.push(this.pos.copy());
+
+    let nb = this.path.length - this.longueurChemin;
+    // on enlève au path les nb points en trop
+    for (let i = 0; i < nb; i++) {
+      this.path.shift();
+    }
   }
 
   show() {
@@ -137,8 +158,31 @@ class Vehicle {
     translate(this.pos.x, this.pos.y);
     rotate(this.vel.heading() - PI / 2);
     imageMode(CENTER);
+    // ajoute une teinte aléatoire
+    //tint(random(255), random(255), random(255));
     image(this.image, 0, 0, this.r * 2, this.r * 2);
     pop();
+
+    // Dessin du chemin derrière le vaisseau
+    // On veut une opacité qui va de 0 à 255
+    // 0 pour les premiers (plus vieux) points
+    // 255 pour les derniers (plus récents) points
+    // 0 = transparent, 255 = pas transparent du tout
+    let opacite = 0;
+    let incrementOpacite = 255 / this.longueurChemin;
+    this.path.forEach((p, index) => {
+      if (index % this.nbPointsIgnores == 0) {
+        // decomposition de la couleur this.color en r, g, b
+        let r = red(this.color);
+        let g = green(this.color);
+        let b = blue(this.color);
+        fill(r, g, b, opacite);
+        
+        noStroke();
+        circle(p.x, p.y, 4);
+      }
+      opacite += incrementOpacite;
+    });
   }
 
   edges() {
