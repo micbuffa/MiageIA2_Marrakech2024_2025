@@ -5,8 +5,8 @@ class Vehicle {
     this.pos = createVector(x, y);
     this.vel = createVector(0, 0);
     this.acc = createVector(0, 0);
-    this.maxSpeed = 10;
-    this.maxForce = 0.6;
+    this.maxSpeed = 20;
+    this.maxForce = 2;
     this.r = 16;
     this.rayonZoneDeFreinage = 150;
   }
@@ -41,6 +41,7 @@ class Vehicle {
 
   flee(target) {
     // recopier code de flee de l'exemple précédent
+    return this.seek(target).mult(-1);
   }
 
   seek(target, arrival=false, d=0) {
