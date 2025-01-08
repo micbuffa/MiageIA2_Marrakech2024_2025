@@ -12,15 +12,20 @@
 
 // Pour debug on/off affichage des lignes etc.
 let debug = false;
-
+let voitureImg;
 // le chemin
 let path;
 
 // Tableau des véhicules
 let vehicles = [];
 
+function preload() {
+  // On charge les images
+  voitureImg = loadImage("assets/voiture.webp");
+}
+
 function setup() {
-  createCanvas(1200, 800);
+  createCanvas(windowWidth, windowHeight);
   // la fonction suivante créer un chemin composé de plusieurs points
   newPath();
 
@@ -43,6 +48,7 @@ function draw() {
   for (let v of vehicles) {
     // On applique les comportements pour suivre le chemin
     v.applyBehaviors(vehicles, path);
+    v.edges();
     // on a regroupé update, draw etc. dans une méthode run (update, borders, display, etc.)
     v.run();
   }
@@ -72,9 +78,9 @@ function newPath() {
 }
 
 function newVehicle(x, y) {
-  let maxspeed = random(2, 4);
-  let maxforce = 0.3;
-  let v = new Vehicle(x, y, maxspeed, maxforce);
+  let maxSpeed = random(2, 4);
+  let maxForce = 0.3;
+  let v = new Vehicle(x, y, maxSpeed, maxForce, voitureImg);
   vehicles.push(v);
   return v;
 }
@@ -85,9 +91,18 @@ function keyPressed() {
     Vehicle.debug = !debug;
   } else if(key == "s") {
     // On crée à la position de la souris un véhicule rapide rouge
-    
+    let v = new Vehicle(mouseX, mouseY, 10, 0.25, voitureImg);
+    v.color = "red";
+    vehicles.push(v);
   } else if (key == "w") {
     // On crée un véhicule wander
+    let v = new Vehicle(mouseX, mouseY, 3, 0.25, voitureImg);
+    v.color = "lightgreen";
+    v.r = 50;
+    v.wanderWeight = 1;
+    v.followPathWeight = 0;
+    v.separateWeight = 0.2;
+    vehicles.push(v);
   }
 }
 

@@ -14,17 +14,18 @@ class Vehicle {
     static debug = false;
 
   // Constructor initialize all values
-  constructor(x, y, ms, mf) {
-    this.position = createVector(x, y);
+  constructor(x, y, ms, mf, image) {
+    this.pos = createVector(x, y);
     this.r = 12;
-    this.maxspeed = ms;
-    this.maxforce = mf;
-    this.acceleration = createVector(0, 0);
-    this.velocity = createVector(this.maxspeed, 0);
-    this.couleur = "black";
+    this.maxSpeed = ms;
+    this.maxForce = mf;
+    this.acc = createVector(0, 0);
+    this.vel = createVector(this.maxSpeed, 0);
+    this.color = "black";
+    this.image = image;
 
     // Poids par défaut des différents comportements
-    this.wanderWeight = 1;
+    this.wanderWeight = 0;
     this.followPathWeight = 2;
     this.separateWeight = 3;
 
@@ -46,14 +47,17 @@ class Vehicle {
     let f = this.follow(path);
     // separation des autres véhicules, le resultat est la force s
     let s = this.separate(vehicles);
+    let w = this.wander();
 
     // On fait une somme pondérée des deux forces
     f.mult(this.followPathWeight);
     s.mult(this.separateWeight); // essayez zéro ici !!!!
+    w.mult(this.wanderWeight);
 
     // On applique les forces au véhicule
     this.applyForce(f);
     this.applyForce(s);
+    this.applyForce(w);
   }
 
   applyForce(force) {
@@ -62,7 +66,7 @@ class Vehicle {
     // il suffirait de diviser la force par une masse. On a choisi de ne pas le faire ici
     // et de supposer une masse de 1. 
     // A = F / M
-    this.acceleration.add(force);
+    this.acc.add(force);
   }
 
   // Main "run" function
@@ -75,10 +79,10 @@ class Vehicle {
   // http://www.red3d.com/cwr/steer/PathFollow.html
   follow(path) {
     // Position du véhicule dans 25 frames
-    let predict = this.velocity.copy();
+    let predict = this.vel.copy();
     predict.normalize();
     predict.mult(25);
-    let predictpos = p5.Vector.add(this.position, predict);
+    let predictpos = p5.Vector.add(this.pos, predict);
 
     // On cherche la projection sur le chemin.
     // Comme le chemin est composé de plusieurs segments, 
@@ -145,7 +149,7 @@ class Vehicle {
       // future position devant le vaisseau
       stroke(0);
       fill(0);
-      line(this.position.x, this.position.y, predictpos.x, predictpos.y);
+      line(this.pos.x, this.pos.y, predictpos.x, predictpos.y);
       ellipse(predictpos.x, predictpos.y, 4, 4);
 
       // Point projeté
@@ -179,11 +183,11 @@ class Vehicle {
     // On examine les autres boids pour voir s'ils sont trop près
     for (let i = 0; i < boids.length; i++) {
       let other = boids[i];
-      let d = p5.Vector.dist(this.position, other.position);
+      let d = p5.Vector.dist(this.pos, other.pos);
       // Si la distance est supérieure à 0 et inférieure à une valeur arbitraire (0 quand on est soi-même)
       if (d > 0 && d < desiredseparation) {
         // Calculate vector pointing away from neighbor
-        let diff = p5.Vector.sub(this.position, other.position);
+        let diff = p5.Vector.sub(this.pos, other.pos);
         diff.normalize();
         diff.div(d); // poids en fonction de la distance. Plus le voisin est proche, plus le poids est grand
         steer.add(diff);
@@ -199,18 +203,18 @@ class Vehicle {
     if (steer.mag() > 0) {
       // On implemente : Steering = Desired - Velocity
       steer.normalize();
-      steer.mult(this.maxspeed);
-      steer.sub(this.velocity);
-      steer.limit(this.maxforce);
+      steer.mult(this.maxSpeed);
+      steer.sub(this.vel);
+      steer.limit(this.maxForce);
     }
     return steer;
   }
 
   wander() {
     // point devant le véhicule, centre du cercle
-    let wanderPoint = this.velocity.copy();
+    let wanderPoint = this.vel.copy();
     wanderPoint.setMag(this.distanceCercle);
-    wanderPoint.add(this.position);
+    wanderPoint.add(this.pos);
 
     if (Vehicle.debug) {
       // on le dessine sous la forme d'une petit cercle rouge
@@ -225,14 +229,14 @@ class Vehicle {
 
       // on dessine une ligne qui relie le vaisseau à ce point
       // c'est la ligne blanche en face du vaisseau
-      line(this.position.x, this.position.y, wanderPoint.x, wanderPoint.y);
+      line(this.pos.x, this.pos.y, wanderPoint.x, wanderPoint.y);
     }
 
     // On va s'occuper de calculer le point vert SUR LE CERCLE
     // il fait un angle wanderTheta avec le centre du cercle
     // l'angle final par rapport à l'axe des X c'est l'angle du vaisseau
     // + cet angle
-    let theta = this.wanderTheta + this.velocity.heading();
+    let theta = this.wanderTheta + this.vel.heading();
 
     let x = this.wanderRadius * cos(theta);
     let y = this.wanderRadius * sin(theta);
@@ -248,7 +252,7 @@ class Vehicle {
 
       // on dessine le vecteur desiredSpeed qui va du vaisseau au point vert
       stroke(0);
-      line(this.position.x, this.position.y, wanderPoint.x, wanderPoint.y);
+      line(this.pos.x, this.pos.y, wanderPoint.x, wanderPoint.y);
     }
     // On a donc la vitesse désirée que l'on cherche qui est le vecteur
     // allant du vaisseau au cercle vert. On le calcule :
@@ -257,9 +261,9 @@ class Vehicle {
     // dans sa vidéo, on ne calcule pas la formule classique
     // force = desiredSpeed - vitesseCourante, mais ici on a directement
     // force = desiredSpeed
-    let steer = wanderPoint.sub(this.position);
+    let steer = wanderPoint.sub(this.pos);
 
-    steer.setMag(this.maxforce);
+    steer.setMag(this.maxForce);
     
 
     // On déplace le point vert sur le cerlcle (en radians)
@@ -272,15 +276,15 @@ class Vehicle {
   // Method to update position
   update() {
     // Update velocity
-    this.velocity.add(this.acceleration);
+    this.vel.add(this.acc);
     // Limit speed
-    this.velocity.limit(this.maxspeed);
-    this.position.add(this.velocity);
+    this.vel.limit(this.maxSpeed);
+    this.pos.add(this.vel);
     // Reset accelertion to 0 each cycle
-    this.acceleration.mult(0);
+    this.acc.mult(0);
 
     // on rajoute la position courante dans le tableau
-    this.path.push(this.position.copy());
+    this.path.push(this.pos.copy());
 
     // si le tableau a plus de 50 éléments, on vire le plus ancien
     if(this.path.length > this.pathMaxLength) {
@@ -291,38 +295,43 @@ class Vehicle {
   // A method that calculates and applies a steering force towards a target
   // STEER = DESIRED MINUS VELOCITY
   seek(target) {
-    let desired = p5.Vector.sub(target, this.position); // A vector pointing from the position to the target
+    let desired = p5.Vector.sub(target, this.pos); // A vector pointing from the position to the target
 
     // Normalize desired and scale to maximum speed
     desired.normalize();
-    desired.mult(this.maxspeed);
+    desired.mult(this.maxSpeed);
     // Steering = Desired minus Vepositionity
-    let steer = p5.Vector.sub(desired, this.velocity);
-    steer.limit(this.maxforce); // Limit to maximum steering force
+    let steer = p5.Vector.sub(desired, this.vel);
+    steer.limit(this.maxForce); // Limit to maximum steering force
 
     return steer;
   }
 
   render() {
       // Simple boid is just a circle
-      fill(this.couleur);
+      fill(this.color);
       stroke(0);
       push();
-      translate(this.position.x, this.position.y);
+      translate(this.pos.x, this.pos.y);
+      rotate(this.vel.heading() + Math.PI/2);
+      //ellipse(0, 0, this.r, this.r);
+      // on dessine this.image
+      imageMode(CENTER);
+      image(this.image, 0, 0, 32, 32);
       ellipse(0, 0, this.r, this.r);
       pop();
   }
 
   edges() {
-    if (this.position.x > width + this.r) {
-      this.position.x = -this.r;
-    } else if (this.position.x < -this.r) {
-      this.position.x = width + this.r;
+    if (this.pos.x > width + this.r) {
+      this.pos.x = -this.r;
+    } else if (this.pos.x < -this.r) {
+      this.pos.x = width + this.r;
     }
-    if (this.position.y > height + this.r) {
-      this.position.y = -this.r;
-    } else if (this.position.y < -this.r) {
-      this.position.y = height + this.r;
+    if (this.pos.y > height + this.r) {
+      this.pos.y = -this.r;
+    } else if (this.pos.y < -this.r) {
+      this.pos.y = height + this.r;
     }
   }
 }
