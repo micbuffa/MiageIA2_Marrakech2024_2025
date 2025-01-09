@@ -3,6 +3,7 @@
 const TOTAL = 100;
 const MUTATION_RATE = 0.1;
 const LIFESPAN = 25;
+// On regarde le long des capteurs jq distance = 50
 const SIGHT = 50;
 
 let generationCount = 0;
@@ -23,7 +24,9 @@ let speedSlider;
 let inside = [];
 let outside = [];
 let checkpoints = [];
+
 const maxFitness = 500;
+
 let changeMap = false;
 
 /* construit un nouveau circuit */
@@ -84,6 +87,7 @@ function setup() {
   speedSlider = createSlider(1, 10, 1);
 }
 
+// Appelée 60 fois / seconde
 function draw() {
   const cycles = speedSlider.value();
   background(0);
@@ -100,7 +104,7 @@ function draw() {
       // on regarde si on a passé un checkpoint
       particle.check(checkpoints);
       // on vérifie qu'on est pas sorti du circuit
-      particle.bounds();
+      //particle.bounds();
 
       // classique.... on met à jour accelerations, vitesses et positions
       particle.update();
@@ -113,6 +117,7 @@ function draw() {
         bestP = particle;
       }
     }
+    
 
     // On supprime les voitures mortes ou celles qui ont fini le circuit
     for (let i = population.length - 1; i >= 0; i--) {
@@ -120,28 +125,6 @@ function draw() {
       if (particle.dead || particle.finished) {
         savedParticles.push(population.splice(i, 1)[0]);
       }
-
-      // On regarde si on a atteint la fin du circuit, si oui
-      // on regenere le circuit
-      if (!changeMap && particle.fitness > maxFitness) {
-        changeMap = true;
-      }
-    }
-
-    // Si on a fini le circuit, avec au moins un véhicule
-    // on passe à la génération suivante, et on garde la génération actuelle comme point de départ
-    if (population.length !== 0 && changeMap) {
-      for (let i = population.length - 1; i >= 0; i--) {
-        savedParticles.push(population.splice(i, 1)[0]);
-      }
-
-      // On reconstruit le circuit
-      buildTrack();
-      // On complète la génération avec des voitures issues de la génération précédente
-      // en appliquant des mutations
-      nextGeneration();
-      generationCount++;
-      changeMap = false;
     }
 
     // Si jamais on a plus de voitures, on passe à la génération suivante

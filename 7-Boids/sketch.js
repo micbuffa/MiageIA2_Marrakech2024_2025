@@ -96,7 +96,7 @@ function draw() {
     // on dessine la cible qui suit la souris
     target.x = mouseX;
     target.y = mouseY;
-    
+
     push();
     fill("lightgreen");
     noStroke();

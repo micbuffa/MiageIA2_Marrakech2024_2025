@@ -16,6 +16,7 @@ function pldistance(p1, p2, x, y) {
       this.maxspeed = 5;
       this.maxforce = 0.2;
       this.sight = SIGHT;
+      // les rayons des capteurs
       this.rays = [];
       this.index = 0;
       this.counter = 0;
@@ -192,16 +193,16 @@ function pldistance(p1, p2, x, y) {
       // Calcul de la force à appliquer
       // On calcule un vecteur à partir de l'angle et de la vitesse
       // c'est la vitesse souhaitée
-      const steering = p5.Vector.fromAngle(angle);
-      steering.setMag(speed);
+      const vitesseSouhaitee = p5.Vector.fromAngle(angle);
+      vitesseSouhaitee.setMag(speed);
 
       // force = vitesse souhaitée - vitesse actuelle
-      steering.sub(this.vel);
-
+      let force = p5.Vector.sub(vitesseSouhaitee, this.vel);
+    
       // On limite la force
-      steering.limit(this.maxforce);
+      force.limit(this.maxforce);
       // On applique la force
-      this.applyForce(steering);
+      this.applyForce(force);
       // console.log(output);
     }
   
