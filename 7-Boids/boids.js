@@ -41,15 +41,16 @@ class Boid {
     // Pour la séparation
     this.separationWeight = 2;
     // Pour le confinement
+    this.boundariesWeight = 10;
+
+    // Paramètres comportement confinement
     this.boundariesX = 0;
     this.boundariesY = 0
     this.boundariesWidth = width;
     this.boundariesHeight = height;
     this.boundariesDistance = 25;
 
-    this.boundariesWeight = 10;
-
-    // Wander
+    // Paramètres  comportement Wander
     // pour comportement wander
     this.distanceCercle = 150;
     this.wanderRadius = 50;
@@ -171,10 +172,21 @@ class Boid {
   }
 
   fleeWithTargetRadius(target) {
-    const d = this.pos.dist(target);
-    if (d < target.r + 10) {
+    const d = this.pos.dist(target.pos);
+    let rayonZoneAFuir = target.r + 10;
+
+    
+
+    if (d < rayonZoneAFuir) {
+      // On dessine le cercle de la zone à fuir
+      push();
+      stroke("red");
+      strokeWeight(2);
+      circle(target.pos.x, target.pos.y, rayonZoneAFuir*2);
+    pop();
+
       // je fuis la cible, on réutilise le comportement flee
-      const fleeForce = this.flee(target);
+      const fleeForce = this.flee(target.pos);
       fleeForce.mult(100);
       this.applyForce(fleeForce);
     }

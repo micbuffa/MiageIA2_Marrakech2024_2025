@@ -21,7 +21,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1600, 800);
+  createCanvas(windowWidth, windowHeight);
 
   // Quelques sliders pour régler les "poids" des trois comportements de flocking
   // flocking en anglais c'est "se rassembler"
@@ -96,26 +96,29 @@ function draw() {
     // on dessine la cible qui suit la souris
     target.x = mouseX;
     target.y = mouseY;
+    
+    push();
     fill("lightgreen");
     noStroke();
     ellipse(target.x, target.y, target.r, target.r);
+     pop();
 
   for (let boid of flock) {
-    //boid.edges();
+    // équivalent de applyBehaviors, cohesion + separation + alignenement + confinement
     boid.flock(flock);
 
-    boid.fleeWithTargetRadius(target);
+    boid.fleeWithTargetRadius(requin);
 
     boid.update();
     boid.show();
   }  
 
-  // dessin du requin
+  // REQUIN
   let wanderForce = requin.wander();
   wanderForce.mult(1);
   requin.applyForce(wanderForce);
 
-  // calcul du poisson le plus proche
+  // calcul du poisson le plus proche du requin
   let seekForce;
   let rayonDeDetection = 70;
   // dessin du cercle en fil de fer jaune
