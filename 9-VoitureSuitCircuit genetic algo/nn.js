@@ -104,7 +104,9 @@ class NeuralNetwork {
         inputShape: [this.input_nodes],
         activation: 'sigmoid'
       });
+
       model.add(hidden);
+
       const output = tf.layers.dense({
         units: this.output_nodes,
         activation: 'sigmoid'

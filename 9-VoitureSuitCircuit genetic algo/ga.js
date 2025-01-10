@@ -8,14 +8,18 @@ function nextGeneration() {
 
     for (let i = 0; i < TOTAL; i++) {
       // Pour la mutation, on choisit un parent au hasard
+      // population est le tableau des voitures "vivantes", on
+      // le remplit avec des voitures issues de la génération précédente
+      // et choisies parmis les meilleurs, avec de l'aléatoire et 
+      // des mutations possibles (c'est fait dans pickOne())
       population[i] = pickOne();
     }
 
-    // On vide le tableau des voitures
+    // On vide le tableau des voitures mortes
     for (let i = 0; i < TOTAL; i++) {
-      savedParticles[i].dispose();
+      savedVehicles[i].dispose();
     }
-    savedParticles = [];
+    savedVehicles = [];
   }
   
   // On choisit un parent au hasard
@@ -30,31 +34,31 @@ function nextGeneration() {
     // la valeur de index est le véhicule choisi
     let r = random(1);
     while (r > 0) {
-      r = r - savedParticles[index].fitness;
+      r = r - savedVehicles[index].fitness;
       index++;
     }
     index--;
 
     // l'heureux élu !
-    let particle = savedParticles[index];
+    let vehicle = savedVehicles[index];
     // TODO implement copy Particle
     // on en fait une copie et on la mute
-    let child = new Particle(particle.brain);
+    let child = new Vehicle(vehicle.brain);
     child.mutate();
     return child;
   }
   
   // On calcule la fitness de chaque voiture
   function calculateFitness(target) {
-    for (let particle of savedParticles) {
-      particle.calculateFitness();
+    for (let vehicle of savedVehicles) {
+      vehicle.calculateFitness();
     }
     // Normalize all values
     let sum = 0;
-    for (let particle of savedParticles) {
-      sum += particle.fitness;
+    for (let vehicle of savedVehicles) {
+      sum += vehicle.fitness;
     }
-    for (let particle of savedParticles) {
-      particle.fitness = particle.fitness / sum;
+    for (let vehicle of savedVehicles) {
+      vehicle.fitness = vehicle.fitness / sum;
     }
   }

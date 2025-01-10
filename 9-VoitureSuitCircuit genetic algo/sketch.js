@@ -15,7 +15,7 @@ let ray;
 
 // Les voitures
 let population = [];
-let savedParticles = [];
+let savedVehicles = [];
 
 let start, end;
 
@@ -81,7 +81,7 @@ function setup() {
 
   // On crée les véhicules....
   for (let i = 0; i < TOTAL; i++) {
-    population[i] = new Particle();
+    population[i] = new Vehicle();
   }
 
   speedSlider = createSlider(1, 10, 1);
@@ -98,32 +98,32 @@ function draw() {
   // Nombre de cyles par frame ("époques par frame")
   for (let n = 0; n < cycles; n++) {
     // Pour chaque voiture
-    for (let particle of population) {
+    for (let vehicle of population) {
       // On applique le comportement
-      particle.look(walls);
+      vehicle.applyBehaviors(walls);
       // on regarde si on a passé un checkpoint
-      particle.check(checkpoints);
+      vehicle.check(checkpoints);
       // on vérifie qu'on est pas sorti du circuit
-      //particle.bounds();
+      //Vehicle.bounds();
 
       // classique.... on met à jour accelerations, vitesses et positions
-      particle.update();
+      vehicle.update();
       // et on dessine
-      particle.show();
+      vehicle.show();
 
       // Une fois les voitures déplacées
       // On récupère la meilleure, celle qui a passé le plus de checkpoints
-      if (particle.fitness > bestP.fitness) {
-        bestP = particle;
+      if (vehicle.fitness > bestP.fitness) {
+        bestP = vehicle;
       }
     }
-    
+
 
     // On supprime les voitures mortes ou celles qui ont fini le circuit
     for (let i = population.length - 1; i >= 0; i--) {
-      const particle = population[i];
-      if (particle.dead || particle.finished) {
-        savedParticles.push(population.splice(i, 1)[0]);
+      const vehicle = population[i];
+      if (vehicle.dead || vehicle.finished) {
+        savedVehicles.push(population.splice(i, 1)[0]);
       }
     }
 
@@ -146,8 +146,8 @@ function draw() {
   }
 
   // On dessine les voitures
-  for (let particle of population) {
-    particle.show();
+  for (let vehicle of population) {
+    vehicle.show();
   }
 
   // On met la voiture la meilleure en surbrillance

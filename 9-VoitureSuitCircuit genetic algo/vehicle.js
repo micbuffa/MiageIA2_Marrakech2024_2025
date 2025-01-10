@@ -4,7 +4,7 @@ function pldistance(p1, p2, x, y) {
     return num / den;
   }
   
-  class Particle {
+  class Vehicle {
     constructor(brain) {
       // nombre de checkpoints passés
       this.fitness = 0;
@@ -57,6 +57,12 @@ function pldistance(p1, p2, x, y) {
       this.brain.dispose();
     }
   
+    applyBehaviors(walls) {
+      // On appelle le comportement look
+      let force = this.look(walls);
+      this.applyForce(force);
+    }
+
     // Applique une mutation à l'ADN (réseau de neurones) de la voiture courante
     mutate() {
       this.brain.mutate(MUTATION_RATE);
@@ -202,8 +208,7 @@ function pldistance(p1, p2, x, y) {
       // On limite la force
       force.limit(this.maxforce);
       // On applique la force
-      this.applyForce(force);
-      // console.log(output);
+      return force;
     }
   
     // Si la voiture sort du canvas, on la tue
